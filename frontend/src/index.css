@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-family: 'Inter', system-ui, sans-serif; }
+}
+
+/* Severity colours */
+.severity-critical { @apply text-red-400 border-red-500 bg-red-500/10; }
+.severity-high     { @apply text-orange-400 border-orange-500 bg-orange-500/10; }
+.severity-medium   { @apply text-yellow-400 border-yellow-500 bg-yellow-500/10; }
+.severity-low      { @apply text-green-400 border-green-500 bg-green-500/10; }
+
+/* Pulsing dot for live feed */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.9); opacity: 1; }
+  70%  { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+.live-dot::before {
+  content: '';
+  @apply absolute inline-block rounded-full bg-green-400;
+  animation: pulse-ring 1.5s ease-out infinite;
+}

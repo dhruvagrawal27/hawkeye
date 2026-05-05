@@ -1,0 +1,55 @@
+.env
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+
+# Artifacts & data (uploaded to VPS, not committed)
+backend/artifacts/*.txt
+backend/artifacts/*.parquet
+backend/artifacts/*.json
+backend/data/*.jsonl
+backend/data/*.parquet
+/opt/hawkeye-data/
+
+# Frontend build output
+frontend/dist/
+frontend/.vite/
+
+# Python tooling
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
+
+# OS
+Thumbs.db

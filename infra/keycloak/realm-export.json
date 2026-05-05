@@ -1,0 +1,57 @@
+{
+  "realm": "hawkeye",
+  "enabled": true,
+  "displayName": "HAWKEYE",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "clients": [
+    {
+      "clientId": "hawkeye-frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "attributes": { "pkce.code.challenge.method": "S256" }
+    },
+    {
+      "clientId": "hawkeye-backend",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "secret": "changeme_keycloak_secret",
+      "redirectUris": ["*"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "analyst", "description": "Can view alerts and employees" },
+      { "name": "supervisor", "description": "Can triage alerts and regenerate narratives" },
+      { "name": "admin", "description": "Full access" }
+    ]
+  },
+  "users": [
+    {
+      "username": "analyst",
+      "email": "analyst@hawkeye.local",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "analyst", "temporary": false }],
+      "realmRoles": ["analyst"]
+    },
+    {
+      "username": "supervisor",
+      "email": "supervisor@hawkeye.local",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "supervisor", "temporary": false }],
+      "realmRoles": ["supervisor"]
+    },
+    {
+      "username": "admin",
+      "email": "admin@hawkeye.local",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["admin", "supervisor", "analyst"]
+    }
+  ]
+}

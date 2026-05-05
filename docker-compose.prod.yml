@@ -1,0 +1,75 @@
+# Production overrides — bind admin ports to localhost only
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+version: "3.9"
+
+services:
+
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - /opt/hawkeye-data/postgres:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - /opt/hawkeye-data/redis/data:/data
+
+  neo4j:
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - /opt/hawkeye-data/neo4j/data:/data
+      - /opt/hawkeye-data/neo4j/logs:/logs
+
+  kafka:
+    ports:
+      - "127.0.0.1:9092:9092"
+    volumes:
+      - /opt/hawkeye-data/kafka/data:/var/lib/kafka/data
+
+  minio:
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - /opt/hawkeye-data/minio/data:/data
+
+  keycloak:
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - /opt/hawkeye-data/keycloak/data:/opt/keycloak/data
+
+  mlflow:
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - /opt/hawkeye-data/mlflow:/mlflow
+
+  prometheus:
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  grafana:
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - /opt/hawkeye-data/grafana:/var/lib/grafana
+
+  backend:
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - /opt/hawkeye-data/artifacts:/app/artifacts:ro
+      - /opt/hawkeye-data/synthetic:/app/data:ro
+    environment:
+      ENVIRONMENT: production
+
+  frontend:
+    ports:
+      - "127.0.0.1:8080:80"

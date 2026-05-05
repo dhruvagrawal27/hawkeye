@@ -1,0 +1,17 @@
+# GitHub Actions Deploy Key
+
+Paste the **public** half of your GitHub Actions SSH deploy key here for reference.
+Generate with:
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions@hawkeye" -f ~/.ssh/github_actions_hawkeye -N ""
+```
+
+Then:
+- Add the **private** key (`github_actions_hawkeye`) as GitHub secret `SSH_PRIVATE_KEY`
+- Add the **public** key (`github_actions_hawkeye.pub`) to `~/.ssh/authorized_keys` on the VPS
+
+Example public key format:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... github-actions@hawkeye
+```

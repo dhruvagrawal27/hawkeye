@@ -1,0 +1,35 @@
+{
+  "__inputs": [{ "name": "DS_PROMETHEUS", "label": "Prometheus", "type": "datasource", "pluginId": "prometheus" }],
+  "title": "HAWKEYE Overview",
+  "uid": "hawkeye-overview",
+  "panels": [
+    {
+      "id": 1, "title": "Event Ingestion Rate (ev/s)", "type": "graph", "gridPos": {"x":0,"y":0,"w":12,"h":8},
+      "targets": [{ "datasource": "DS_PROMETHEUS", "expr": "rate(hawkeye_events_consumed_total[1m])", "legendFormat": "ev/s" }]
+    },
+    {
+      "id": 2, "title": "Alert Rate (alerts/min)", "type": "graph", "gridPos": {"x":12,"y":0,"w":12,"h":8},
+      "targets": [{ "datasource": "DS_PROMETHEUS", "expr": "rate(hawkeye_alerts_created_total[1m])*60", "legendFormat": "alerts/min" }]
+    },
+    {
+      "id": 3, "title": "Score Distribution", "type": "histogram", "gridPos": {"x":0,"y":8,"w":12,"h":8},
+      "targets": [{ "datasource": "DS_PROMETHEUS", "expr": "hawkeye_score_distribution_bucket", "legendFormat": "{{le}}" }]
+    },
+    {
+      "id": 4, "title": "API p50/p95/p99 Latency (ms)", "type": "graph", "gridPos": {"x":12,"y":8,"w":12,"h":8},
+      "targets": [
+        { "datasource": "DS_PROMETHEUS", "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))*1000", "legendFormat": "p50" },
+        { "datasource": "DS_PROMETHEUS", "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))*1000", "legendFormat": "p95" },
+        { "datasource": "DS_PROMETHEUS", "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))*1000", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 5, "title": "Narrative Generation Latency (s)", "type": "graph", "gridPos": {"x":0,"y":16,"w":12,"h":8},
+      "targets": [{ "datasource": "DS_PROMETHEUS", "expr": "histogram_quantile(0.95, rate(hawkeye_narrative_latency_seconds_bucket[5m]))", "legendFormat": "p95" }]
+    },
+    {
+      "id": 6, "title": "LLM Token Usage (tokens/min)", "type": "graph", "gridPos": {"x":12,"y":16,"w":12,"h":8},
+      "targets": [{ "datasource": "DS_PROMETHEUS", "expr": "rate(hawkeye_llm_tokens_total[1m])*60", "legendFormat": "tokens/min" }]
+    }
+  ]
+}
