@@ -28,8 +28,8 @@ from app.ws.alerts import router as ws_router
 settings = get_settings()
 log = structlog.get_logger()
 
-# Sentry (no-op if DSN is empty)
-if settings.sentry_dsn:
+# Sentry (no-op if DSN is empty or not a valid URL)
+if settings.sentry_dsn and settings.sentry_dsn.startswith("http"):
     sentry_sdk.init(dsn=settings.sentry_dsn, traces_sample_rate=0.1)
 
 # Scoring + graph service singletons

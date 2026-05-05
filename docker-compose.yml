@@ -48,16 +48,17 @@ services:
       interval: 15s
       timeout: 10s
       retries: 15
+      start_period: 45s
 
   # ── Kafka topic init ───────────────────────────────────────────────────
   kafka-init:
     image: confluentinc/cp-kafka:7.6.0
     depends_on:
       kafka:
-        condition: service_healthy
+        condition: service_started
     entrypoint: ["/bin/bash", "-c"]
     command: |
-      "kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
+      "sleep 15 && kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
         --topic hawkeye.events --partitions 1 --replication-factor 1 && echo 'Topic created'"
     <<: *default-logging
 
@@ -247,11 +248,11 @@ services:
       redis:
         condition: service_healthy
       neo4j:
-        condition: service_healthy
+        condition: service_started   # Neo4j takes 60s+ to be healthy; backend retries internally
       kafka:
-        condition: service_healthy
+        condition: service_started   # Kafka takes 30s+; consumer retries internally
       keycloak:
-        condition: service_healthy
+        condition: service_started   # Keycloak takes 35s+; backend retries JWKS fetch internally
       minio:
         condition: service_healthy
     healthcheck:
@@ -273,7 +274,7 @@ services:
         VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:-ws://localhost:8000}
     <<: [*default-restart, *default-logging]
     ports:
-      - "8080:80"
+      - "5173:80"   # browse at http://localhost:5173
     depends_on:
       backend:
         condition: service_healthy
