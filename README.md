@@ -42,21 +42,34 @@ Full diagram: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ## Quick Start (local)
 
+> **Model files are not stored in git** (too large). They live on GitHub Releases and are downloaded by `make setup`.
+
 ```bash
-git clone https://github.com/nineagents/hawkeye-nineagents.git
-cd hawkeye-nineagents
+# 1. Clone
+git clone https://github.com/dhruvagrawal27/hawkeye.git
+cd hawkeye
+
+# 2. Download model artifacts + synthetic data (~50 MB, one-time)
+#    Linux / Mac / Git-Bash:
+bash scripts/download-artifacts.sh
+#    Windows PowerShell:
+#    .\scripts\download-artifacts.ps1
+
+# 3. Configure environment
 cp .env.example .env
-# edit .env — add your ANTHROPIC_API_KEY at minimum
-make up
-# wait ~2 min for all services to be healthy
-make seed        # loads model artifacts + synthetic data
-make replay      # starts event replay at 200 ev/s
+# Open .env and set:  ANTHROPIC_API_KEY=sk-ant-...
+
+# 4. Start everything
+docker compose up --build
+# First run takes 10-15 min (image pulls + builds).
+# Wait for:  backend | INFO  Application startup complete
+
+# 5. Seed DB + start live replay
+make seed
+make replay
 ```
 
-Open **http://localhost:8080** in your browser.  
-Login: `analyst@hawkeye.local` / `analyst` (or `supervisor@hawkeye.local` / `supervisor`)
-
----
+Open **http://localhost:5173** → login: `analyst` / `analyst123`
 
 ## Demo
 

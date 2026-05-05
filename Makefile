@@ -1,4 +1,10 @@
-.PHONY: up down seed replay test fmt lint deploy logs ps
+.PHONY: up down seed replay test fmt lint deploy logs ps setup
+
+# ── First-time setup ──────────────────────────────────────────────────────
+## Download model artifacts from GitHub Releases (run once after git clone)
+setup:
+	@echo "Downloading model artifacts & synthetic data..."
+	@bash scripts/download-artifacts.sh
 
 # ── Local dev ─────────────────────────────────────────────────────────────
 up:
