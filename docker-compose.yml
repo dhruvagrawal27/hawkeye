@@ -20,10 +20,11 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181"]
+      test: ["CMD", "cub", "zk-ready", "localhost:2181", "30"]
       interval: 10s
-      timeout: 5s
+      timeout: 35s
       retries: 10
+      start_period: 20s
 
   # ── Kafka ─────────────────────────────────────────────────────────────
   kafka:
@@ -115,9 +116,10 @@ services:
       - neo4j_logs:/logs
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
-      interval: 20s
+      interval: 15s
       timeout: 10s
-      retries: 15
+      retries: 20
+      start_period: 90s
 
   # ── MinIO ─────────────────────────────────────────────────────────────
   minio:
@@ -142,7 +144,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     <<: [*default-restart, *default-logging]
-    command: start-dev --import-realm
+    command: start-dev --import-realm --health-enabled=true
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-changeme_keycloak_admin}
@@ -156,9 +158,10 @@ services:
       - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
-      interval: 20s
+      interval: 15s
       timeout: 10s
-      retries: 20
+      retries: 25
+      start_period: 60s
 
   # ── MLflow ────────────────────────────────────────────────────────────
   mlflow:
