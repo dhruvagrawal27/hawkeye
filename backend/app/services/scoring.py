@@ -82,8 +82,9 @@ class ScoringService:
             self._feat_cols = cfg.get("feat_cols", [])
             self._feat_clean = cfg.get("feat_clean", [])
             blend = cfg.get("blend_weights", {})
-            self._w1 = blend.get("w1", 0.5)
-            self._w2 = blend.get("w2", 0.5)
+            # config uses keys "m1"/"m2"; fall back to "w1"/"w2" for compat
+            self._w1 = blend.get("m1", blend.get("w1", 0.5))
+            self._w2 = blend.get("m2", blend.get("w2", 0.5))
             self._threshold = cfg.get("threshold", 0.5)
             log.info("feature_config_loaded", feats=len(self._feat_cols), threshold=self._threshold)
 

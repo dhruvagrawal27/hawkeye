@@ -1,0 +1,4 @@
+# synthetic data kept here — never commit to git
+*.jsonl
+*.parquet
+!.gitkeep

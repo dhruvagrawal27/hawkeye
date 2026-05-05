@@ -1,0 +1,6 @@
+# model files and data kept here — never commit to git
+*.txt
+*.parquet
+*.jsonl
+*.json
+!.gitkeep
