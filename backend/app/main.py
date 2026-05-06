@@ -23,6 +23,7 @@ from app.api.employees import router as employees_router
 from app.api.graph import router as graph_router
 from app.api.narrative import router as narrative_router
 from app.api.replay import router as replay_router
+from app.api.scoring import router as scoring_router
 from app.ws.alerts import router as ws_router
 
 settings = get_settings()
@@ -43,6 +44,17 @@ _consumer_task: asyncio.Task | None = None
 async def lifespan(app: FastAPI):
     global _scoring_service, _graph_service, _consumer, _consumer_task
     log.info("hawkeye_startup")
+
+    # Run DB migrations (idempotent — safe to run every startup)
+    try:
+        from alembic.config import Config
+        from alembic import command
+        from pathlib import Path
+        alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
+        command.upgrade(alembic_cfg, "head")
+        log.info("alembic_migrations_ok")
+    except Exception as exc:
+        log.warning("alembic_migration_failed", error=str(exc))
 
     # Load scoring models
     _scoring_service = ScoringService()
@@ -98,4 +110,5 @@ app.include_router(employees_router, prefix="/employees", tags=["employees"])
 app.include_router(graph_router, prefix="/graph", tags=["graph"])
 app.include_router(narrative_router, prefix="/narrative", tags=["narrative"])
 app.include_router(replay_router, prefix="/events", tags=["replay"])
+app.include_router(scoring_router, prefix="/scoring", tags=["scoring"])
 app.include_router(ws_router, prefix="/ws", tags=["websocket"])

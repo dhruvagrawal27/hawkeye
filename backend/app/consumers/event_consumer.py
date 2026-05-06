@@ -73,11 +73,12 @@ class EventConsumer:
             return
 
         log.info("consumer_started")
+        loop = asyncio.get_event_loop()
         try:
             while self._running:
-                msg = consumer.poll(timeout=1.0)
+                # Run blocking poll() in executor so asyncio event loop is not frozen
+                msg = await loop.run_in_executor(None, consumer.poll, 1.0)
                 if msg is None:
-                    await asyncio.sleep(0.01)
                     continue
                 if msg.error():
                     log.warning("kafka_consumer_error", error=str(msg.error()))
@@ -86,6 +87,10 @@ class EventConsumer:
                     event = json.loads(msg.value().decode())
                     await self._process_event(event)
                     self._events_consumed += 1
+                    if self._events_consumed % 500 == 0:
+                        log.info("consumer_progress",
+                                 events=self._events_consumed,
+                                 alerts=self._alerts_created)
                 except Exception as exc:
                     log.warning("event_process_failed", error=str(exc))
         finally:

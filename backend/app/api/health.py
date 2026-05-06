@@ -27,7 +27,13 @@ async def readyz(request: Request):
     graph = getattr(request.app.state, "graph", None)
     services["graph"] = "ok" if graph and graph.connected else "not_connected"
 
-    all_ok = all(v == "ok" for v in services.values())
+    # Consumer stats
+    consumer = getattr(request.app.state, "consumer", None)
+    if consumer:
+        services["consumer_events"] = str(consumer._events_consumed)
+        services["consumer_alerts"] = str(consumer._alerts_created)
+
+    all_ok = all(v in ("ok",) or k.startswith("consumer_") for k, v in services.items())
     return HealthResponse(
         status="ok" if all_ok else "degraded",
         services=services,

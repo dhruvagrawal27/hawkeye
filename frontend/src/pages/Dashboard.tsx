@@ -17,7 +17,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadAlerts()
-    const interval = setInterval(loadAlerts, 5000)
+    const alertInterval = setInterval(loadAlerts, 5000)
 
     // WebSocket for live push
     const wsBase = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:8000'
@@ -33,9 +33,15 @@ export default function Dashboard() {
     }
     ws.onerror = () => {}
 
+    // Poll replay status every 3s to keep live indicator accurate
     fetchReplayStatus().then(setReplay).catch(() => {})
+    const replayInterval = setInterval(() => {
+      fetchReplayStatus().then(setReplay).catch(() => {})
+    }, 3000)
+
     return () => {
-      clearInterval(interval)
+      clearInterval(alertInterval)
+      clearInterval(replayInterval)
       ws.close()
     }
   }, [])
@@ -88,6 +94,16 @@ export default function Dashboard() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
             </span>
             <span className="text-green-400">{replay.rate} ev/s</span>
+            {replay.events_published > 0 && (
+              <span className="text-muted-foreground text-xs ml-2">
+                {replay.events_published.toLocaleString()} events published
+              </span>
+            )}
+          </div>
+        )}
+        {!replay?.running && (
+          <div className="text-xs text-muted-foreground italic">
+            ▶ Press Start to begin live replay
           </div>
         )}
       </div>

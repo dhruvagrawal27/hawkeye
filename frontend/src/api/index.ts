@@ -1,8 +1,25 @@
 import axios from 'axios'
+import keycloak from '../lib/auth'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 export const api = axios.create({ baseURL: BASE })
+
+// Attach Keycloak JWT to every request on this instance
+api.interceptors.request.use(async (config) => {
+  if (keycloak.authenticated) {
+    try {
+      // Refresh if expiring within 30s
+      await keycloak.updateToken(30)
+    } catch {
+      // Token refresh failed — let the request go; backend will return 401
+    }
+    if (keycloak.token) {
+      config.headers.set('Authorization', `Bearer ${keycloak.token}`)
+    }
+  }
+  return config
+})
 
 // Types
 export interface RiskFactor {

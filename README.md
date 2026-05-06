@@ -69,7 +69,7 @@ make seed
 make replay
 ```
 
-Open **http://localhost:5173** → login: `analyst` / `analyst123`
+Open **http://localhost:5173** → login: `analyst` / `analyst` (or use the email `analyst@hawkeye.local`)
 
 ## Demo
 
@@ -137,3 +137,39 @@ Live URL: **https://hawkeye.nineagents.in**
 ## Licence
 
 MIT — see [LICENSE](LICENSE)
+
+---
+
+## Quick restart after reboot (Windows PowerShell)
+
+If you restart your laptop and want to bring the full dev stack back up quickly, paste the following into PowerShell from the project root (`f:\idea hack\hawkeye`). These commands build images (if needed), start the composition, wait for core services, run migrations/seed, and optionally start the replay generator.
+
+```powershell
+# 1) Ensure you're in the repo root
+Set-Location -Path "F:\idea hack\hawkeye"
+
+# 2) Build & start containers (detached)
+docker compose up --build -d
+
+# 3) Wait a bit (images start + services become healthy). Then check readiness:
+docker compose logs backend --tail 50
+docker compose ps --quiet --filter "status=running" | ForEach-Object { docker inspect -f "{{.Name}}: {{range .State.Health.Log}}{{.Output}}{{end}}" $_ }
+
+# 4) DB migrations + seed (idempotent)
+docker compose exec backend python -m app.scripts.seed_if_empty
+
+# 5) Optional: start the replay (publishes synthetic events to Kafka)
+docker compose exec backend python -m app.scripts.start_replay
+
+# 6) Quick health check (replace 8000 with your backend port if different)
+Invoke-RestMethod -Uri http://localhost:8000/readyz | ConvertTo-Json
+
+# 7) Open the UI
+Start-Process "http://localhost:5173"
+```
+
+Notes:
+- `seed_if_empty` is safe to run repeatedly — it will not duplicate demo data.
+- `start_replay` runs in foreground; use the Docker exec form above which launches it inside the backend container and returns immediately. If you prefer to run replay locally, use `make replay`.
+- If Keycloak or Kafka fail to become healthy, inspect their logs with `docker compose logs keycloak` or `docker compose logs kafka`.
+

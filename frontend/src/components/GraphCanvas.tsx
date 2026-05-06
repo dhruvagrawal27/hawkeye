@@ -17,6 +17,15 @@ export default function GraphCanvas({ employeeId, height = 500 }: Props) {
     fetchGraph(employeeId)
       .then(setData)
       .catch((e) => setError('Graph unavailable'))
+
+    // Auto-refresh every 10s so graph updates as replay processes events
+    const interval = setInterval(() => {
+      fetchGraph(employeeId)
+        .then(setData)
+        .catch(() => {})
+    }, 10000)
+
+    return () => clearInterval(interval)
   }, [employeeId])
 
   useEffect(() => {

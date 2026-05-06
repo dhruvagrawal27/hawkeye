@@ -19,6 +19,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_MAX_SESSION_TIMEOUT: 120000   # allow Kafka's 60s session timeout
     healthcheck:
       test: ["CMD", "cub", "zk-ready", "localhost:2181", "30"]
       interval: 10s
@@ -43,6 +44,9 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # WSL2 fix: extend ZK session timeout so slow host I/O doesn't expire the session
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: 60000
+      KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
       interval: 15s
@@ -55,11 +59,9 @@ services:
     image: confluentinc/cp-kafka:7.6.0
     depends_on:
       kafka:
-        condition: service_started
+        condition: service_healthy   # wait for Kafka to be fully ready
     entrypoint: ["/bin/bash", "-c"]
-    command: |
-      "sleep 15 && kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists \
-        --topic hawkeye.events --partitions 1 --replication-factor 1 && echo 'Topic created'"
+    command: ["kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic hawkeye.events --partitions 1 --replication-factor 1 && echo 'Topic created'"]
     <<: *default-logging
 
   # ── PostgreSQL ────────────────────────────────────────────────────────
